@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Administracion</title>
+    <style type="text/css">
+        .openvpn_box{
+            height: 300px;
+            width: 300px;
+        }
+        .iptables_box{
+            height: 300px;
+            width: 300px;
+        }
+    </style>
+</head>
+<body>
+    <fieldset class="openvpn_box">
+        <legend>Administracion OpenVPN</legend>
+        <h3>Generar la configuracion del cliente</h3>
+        <form name="openvpn_form" method="POST" action="getconfig.php">
+            <label for="name">Nombre</label>
+            <input id="name" name="name" type="text" placeholder="Artur"><br>
+            <input type="radio" name="system" value="linux">Linux<br>
+            <input type="radio" name="system" value="windows">Windows<br>
+            <input type="radio" name="system" value="android">Android<br>
+            <input type="submit" value="Generar el archivo">
+        </form>
+    </fieldset>
+    <fieldset class="iptables_box">
+        <legend>Administracion iptables</legend>
+    </fieldset>
+</body>
+</html>
