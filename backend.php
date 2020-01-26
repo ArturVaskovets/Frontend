@@ -33,9 +33,17 @@ switch ($data["type"])
                 }
                 else if ($data["action"] == "get_file")
                 {
-                    $file = file($script_path);
-                    echo json_encode($file);
-
+                    if(file_exists($script_path))
+                    {
+                        $file = file($script_path);
+                        echo json_encode($file);
+                    }
+                    else
+                    {
+                        header('HTTP/1.1 404 Missing File');
+                        header('Content-Type: application/json; charset=UTF-8');
+                        die(json_encode(array('message' => 'ERROR', 'code' => 404)));
+                    }
                 }
                 else if ($data["action"] == "save_file")
                 {
