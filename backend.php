@@ -29,8 +29,8 @@ function SendConfig($name, $system)
     $script_path = "/etc/openvpn/client/make_config.sh";
     $filename = GetFilename($name, $system);
 
-    sleep(rand(1,5));
-    if(shell_exec($script_path) && file_exists( $conf_path.$filename))
+    sleep(rand(1,3));
+    if(shell_exec("bash {$script_path} {$name} {$system}") != null && file_exists( $conf_path.$filename)) // Script must return a value!!!
     {
         $file = file_get_contents($conf_path.$filename);
         header('Content-Disposition: attachment; filename="'.$filename.'"');
