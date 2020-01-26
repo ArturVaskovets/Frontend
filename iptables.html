@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Iptables</title>
+    <link rel="stylesheet" href="styles/styles.css" type="text/css">
+</head>
+<body>
+<header>
+    <a class="home" href="https://asir4all.tk">asir4all.tk</a>
+    <div class="header-right">
+        <a href="index.html">OpenVPN</a>
+        <a class="active" href="iptables.html">Iptables</a>
+        <a href="memes.html">Despejarse</a>
+    </div>
+</header>
+<fieldset>
+    <legend>Iptables</legend>
+    <label><input type="radio" name="tier" value="noob" checked/> Noob</label>
+    <label><input type="radio" name="tier" value="admin"/> Admin</label>
+    <label><input type="radio" name="tier" value="pro"/> Pro</label>
+    <div class="form">
+        <h4 id="header_text">Generar las reglas iptables de una plantilla</h4>
+        <div id="templates_block" class="templates">
+            <label>Plantilla
+                <select id="rule">
+                    <option value="0">Limpiar las tablas</option>
+                    <option value="1">Anular los contadores</option>
+                    <option value="2">Establecer las politicas por defecto</option>
+                    <option value="3">Bloquear un puerto</option>
+                    <option value="4">Bloquear una red</option>
+                    <option value="5">Bloquear un protocolo</option>
+                    <option value="6">Permitir las conexiones activas</option>
+                    <option value="7">DNAT</option>
+                    <option value="8">SNAT</option>
+                    <option value="9">MASQUERADE</option>
+                </select>
+            </label><br>
+        </div>
+        <div class="rule_preview">
+            <textarea id="rule_preview"></textarea>
+        </div>
+        <div id="line_num" class="line_num">
+            <label>Numero de linea <input id="index" type="number" value="0"/></label>
+            <button id="insert_rule">Insertar</button>
+        </div>
+        <div class="file_preview">
+            <textarea id="file_preview" disabled></textarea><br>
+            <button id="save_file">Guardar</button>
+        </div>
+
+    </div>
+</fieldset>
+<script type="text/javascript">
+    var xhReq = new XMLHttpRequest();
+    setListeners();
+    var templates;
+    var file_strings;
+    requestTemplates();
+    requestFile();
+
+    function setListeners() {
+        var radioTier = document.getElementsByName("tier");
+        for (var i = 0; i < radioTier.length; i++)
+            radioTier[i].addEventListener("change",changeForm);
+        document.getElementById("rule").addEventListener("change",changeTemplate);
+        document.getElementById("insert_rule").addEventListener("click",insertRule);
+        document.getElementById("save_file").addEventListener("click",saveFile);
+    }
+    function requestTemplates() {
+        xhReq.open("POST","backend.php",false);
+        var request = {
+            type: "Iptables",
+            action: "get_templates"
+        };
+        xhReq.onload = getTemplates;
+        xhReq.send(JSON.stringify(request));
+    }
+    function getTemplates() {
+        if(xhReq.status === 200){
+            templates = JSON.parse(xhReq.responseText);
+            var text = document.getElementById("rule_preview");
+            text.value = templates[0];
+        }
+    }
+    function requestFile() {
+        xhReq.open("POST","backend.php",false);
+        var request = {
+            type: "Iptables",
+            action: "get_file"
+        };
+        xhReq.onload = getFile;
+        xhReq.send(JSON.stringify(request));
+    }
+    function getFile() {
+        if(xhReq.status === 200){
+            file_strings = JSON.parse(xhReq.responseText);
+            printFile();
+        }
+    }
+    function printFile() {
+        var text = document.getElementById("file_preview");
+        text.value = "";
+        for (var i = 0; i<file_strings.length;i++)
+        {
+            file_strings[i] = file_strings[i].replace(/^\s+|\s+$/g, '');
+            text.value += `${i} ${file_strings[i]}\n`;
+        }
+    }
+    function getResponse() {
+        if(xhReq.status === 200){
+            var btnSave = document.getElementById("save_file");
+            if(xhReq.responseText == "success")
+            {
+                btnSave.innerText = "Guardado";
+                setTimeout(function(){ btnSave.innerText = "Guardar"; }, 5000);
+            }
+        }
+    }
+
+    function changeForm(event) {
+        var h4Text = document.getElementById("header_text");
+        var templateBlock = document.getElementById("templates_block");
+        var rulePreview = document.getElementById("rule_preview");
+        var lineumberBlock = document.getElementById("line_num");
+        var file_preview = document.getElementById("file_preview");
+
+        switch (event.target.value) {
+            case "noob":
+            {
+                h4Text.innerText = "Generar las reglas iptables de una plantilla";
+                templateBlock.removeAttribute("hidden");
+                rulePreview.removeAttribute("hidden");
+                lineumberBlock.removeAttribute("hidden");
+                file_preview.setAttribute("disabled","");
+                break;
+            }
+            case "admin":
+            {
+                h4Text.innerText = "Escribir e insertar las reglas de manos";
+                templateBlock.setAttribute("hidden","");
+                rulePreview.removeAttribute("hidden");
+                lineumberBlock.removeAttribute("hidden");
+                file_preview.setAttribute("disabled","");
+                break;
+            }
+            case "pro":
+            {
+                h4Text.innerText = "Modificar el archivo directamente";
+                templateBlock.setAttribute("hidden","");
+                rulePreview.setAttribute("hidden","");
+                lineumberBlock.setAttribute("hidden","");
+                file_preview.removeAttribute("disabled");
+                break;
+            }
+            default:
+                break;
+
+
+        }
+    }
+    function changeTemplate(event) {
+        var text = document.getElementById("rule_preview");
+        text.value = templates[event.target.value];
+    }
+    function insertRule(event) {
+        var index = document.getElementById("index");
+        var text = document.getElementById("rule_preview").value;
+        var rules = text.split(/\r?\n/);
+
+        if(index.value >= 1 && index.value < file_strings.length) // >1 because of #!/bin/bash string
+        {
+            file_strings.splice.apply(file_strings, [index.value,0].concat(rules));
+            printFile();
+        }
+        else
+        {
+            alert("Que pasa tio???")
+        }
+    }
+    function saveFile(event) {
+        var text = document.getElementById("file_preview").value;
+        var array = text.split(/\r?\n/);
+        for (var i = 0; i<array.length;i++)
+        {
+            array[i] = array[i].replace(/^[0-9]+ /g, '');
+        }
+        xhReq.open("POST","backend.php");
+        var request = {
+            type: "Iptables",
+            action: "save_file",
+            file: array
+        }
+        xhReq.onload = getResponse;
+        xhReq.send(JSON.stringify(request));
+    }
+</script>
+</body>
+</html>

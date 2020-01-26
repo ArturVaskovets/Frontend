@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Administracion</title>
+    <title>OpenVPN</title>
     <link rel="stylesheet" href="styles/styles.css" type="text/css">
 </head>
 <body>
@@ -21,12 +21,12 @@
         <label><input type="radio" name="system" value="linux" checked/> Linux</label><br>
         <label><input type="radio" name="system" value="windows"/> Windows</label><br>
         <label><input type="radio" name="system" value="android"/> Android</label><br>
-        <button id="getConfig">Generar el archivo</button>
+        <button id="get_config">Generar el archivo</button>
     </fieldset>
     <script type="text/javascript">
         var xhReq = new XMLHttpRequest();
 
-        var btnGetConf = document.getElementById("getConfig");
+        var btnGetConf = document.getElementById("get_config");
         btnGetConf.addEventListener("click", getConfig);
 
         function getConfig(event) {
