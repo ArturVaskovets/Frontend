@@ -3,32 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <title>Administracion</title>
-    <style type="text/css">
-        .openvpn_box{
-            height: 300px;
-            width: 300px;
-        }
-        .iptables_box{
-            height: 300px;
-            width: 300px;
-        }
-    </style>
+    <link rel="stylesheet" href="styles/styles.css" type="text/css">
 </head>
 <body>
-    <fieldset class="openvpn_box">
+    <header>
+        <a class="home" href="https://asir4all.tk">asir4all.tk</a>
+        <div class="header-right">
+            <a class="active" href="index.html">OpenVPN</a>
+            <a href="iptables.html">Iptables</a>
+            <a href="memes.html">Despejarse</a>
+        </div>
+    </header>
+    <fieldset>
         <legend>Administracion OpenVPN</legend>
         <h3>Generar la configuracion del cliente</h3>
-        <form name="openvpn_form" method="POST" action="getconfig.php">
-            <label for="name">Nombre</label>
-            <input id="name" name="name" type="text" placeholder="Artur"><br>
-            <input type="radio" name="system" value="linux">Linux<br>
-            <input type="radio" name="system" value="windows">Windows<br>
-            <input type="radio" name="system" value="android">Android<br>
-            <input type="submit" value="Generar el archivo">
-        </form>
+        <label>Nombre <input id="name" type="text" placeholder="Artur"/></label><br>
+        <label><input type="radio" name="system" value="linux" checked/> Linux</label><br>
+        <label><input type="radio" name="system" value="windows"/> Windows</label><br>
+        <label><input type="radio" name="system" value="android"/> Android</label><br>
+        <button id="getConfig">Generar el archivo</button>
     </fieldset>
-    <fieldset class="iptables_box">
-        <legend>Administracion iptables</legend>
-    </fieldset>
+    <script type="text/javascript">
+        var xhReq = new XMLHttpRequest();
+
+        var btnGetConf = document.getElementById("getConfig");
+        btnGetConf.addEventListener("click", getConfig);
+
+        function getConfig(event) {
+
+            var name = getName();
+            var system = getSystem();
+
+
+            var data = {
+                type: "OpenVPN",
+                name: name,
+                system: system
+            };
+
+            requestFile(data);
+        }
+
+        function requestFile(data) {
+            xhReq.open("POST", "backend.php",true);
+            xhReq.responseType = 'blob';
+            xhReq.onload = downloadFile;
+            xhReq.send(JSON.stringify(data));
+        }
+
+        function downloadFile() {
+            if(xhReq.status === 200) {
+                // Try to find out the filename from the content disposition `filename` value
+                var disposition = xhReq.getResponseHeader('content-disposition');
+                var matches = /"([^"]*)"/.exec(disposition);
+                var filename = (matches != null && matches[1] ? matches[1] : 'config.ovpn');
+
+                // Download
+                var blob = new Blob([xhReq.response]);
+                var link = document.createElement('a');
+                link.href = window.URL.createObjectURL(blob);
+                link.download = filename;
+
+                document.body.appendChild(link);
+
+                link.click();
+
+                document.body.removeChild(link);
+            }
+        }
+
+        function getName() {
+            var txtName = document.getElementById("name");
+            if (!txtName.value)
+                txtName.value = "Artur";
+            return txtName.value;
+        }
+        function getSystem() {
+            var radiosSystem = document.getElementsByName("system");
+            var system;
+            for (var i = 0; i < radiosSystem.length; i++){
+                if (radiosSystem[i].checked){
+                    system = radiosSystem[i].value;
+                }
+            }
+            return system;
+        }
+
+
+
+
+    </script>
 </body>
 </html>
