@@ -1,40 +1,36 @@
 <?php
 $data = json_decode(file_get_contents('php://input'),true);
-/*$result = 0;
-if ($data["type"] == "toIn")
-    $result = $data["value"] * 0.393701;
-else
-    $result = $data["value"] * 2.54;
-
-echo $result;*/
 
 switch ($data["type"])
 {
     case "OpenVPN":
-        if (isset($data["name"]) && isset($data["system"]))
-            SendConfig($data["name"], $data["system"]);
-        break;
+        {
+            if (isset($data["name"]) && isset($data["system"]))
+                SendConfig($data["name"], $data["system"]);
+            break;
+        }
     case "Iptables":
         break;
     case "Memes":
         break;
     default:
-        echo "Error";
-        break;
+        {
+            header('HTTP/1.1 400 Bad Request');
+            header('Content-Type: application/json; charset=UTF-8');
+            die(json_encode(array('message' => 'ERROR', 'code' => 400)));
+            break;
+        }
 }
 
 
-
-/*header('Content-Disposition: attachment; filename="filename.txt"');
-$file = file_get_contents("files/Hola.txt");
-echo $file;*/
-
 function SendConfig($name, $system)
 {
-    $conf_path = "files/";
+    $conf_path = "/etc/openvpn/client/configs/";
+    $script_path = "/etc/openvpn/client/make_config.sh";
     $filename = GetFilename($name, $system);
 
-    if(file_exists($conf_path.$filename))
+    sleep(rand(1,5));
+    if(shell_exec($script_path) && file_exists( $conf_path.$filename))
     {
         $file = file_get_contents($conf_path.$filename);
         header('Content-Disposition: attachment; filename="'.$filename.'"');

@@ -41,6 +41,7 @@
                 system: system
             };
 
+            changeButtonState("disabled");
             requestFile(data);
         }
 
@@ -48,26 +49,31 @@
             xhReq.open("POST", "backend.php",true);
             xhReq.responseType = 'blob';
             xhReq.onload = downloadFile;
+            xhReq.onerror = function (e) {
+              alert('ERROOORRR motherfucker');
+            }; // Actually doesn't work
             xhReq.send(JSON.stringify(data));
         }
 
         function downloadFile() {
+            changeButtonState("enabled");
             if(xhReq.status === 200) {
                 // Try to find out the filename from the content disposition `filename` value
                 var disposition = xhReq.getResponseHeader('content-disposition');
                 var matches = /"([^"]*)"/.exec(disposition);
                 var filename = (matches != null && matches[1] ? matches[1] : 'config.ovpn');
 
-                // Download
+                // Download into a blob object
                 var blob = new Blob([xhReq.response]);
                 var link = document.createElement('a');
                 link.href = window.URL.createObjectURL(blob);
                 link.download = filename;
-
                 document.body.appendChild(link);
 
+                // Autodownload
                 link.click();
 
+                // Clean up
                 document.body.removeChild(link);
             }
         }
@@ -89,9 +95,18 @@
             return system;
         }
 
-
-
-
+        function changeButtonState(state) {
+            if(state == "disabled")
+            {
+                btnGetConf.setAttribute("disabled", "true");
+                btnGetConf.innerText = "Sin prisa...";
+            }
+            else if (state == "enabled")
+            {
+                btnGetConf.innerText = "Generar el archivo";
+                btnGetConf.removeAttribute("disabled");
+            }
+        }
     </script>
 </body>
 </html>
