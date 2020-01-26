@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>OpenVPN</title>
+    <link rel="stylesheet" href="styles/styles.css" type="text/css">
+</head>
+<body>
+<header>
+    <a class="home" href="https://asir4all.tk">asir4all.tk</a>
+    <div class="header-right">
+        <a href="index.html">OpenVPN</a>
+        <a href="iptables.html">Iptables</a>
+        <a class="active" href="memes.html">Despejarse</a>
+    </div>
+</header>
+<fieldset style="text-align: center">
+    <legend>Caja de memes</legend>
+    <img id="meme"/><br>
+    <button id="next_meme">Siguiente</button>
+</fieldset>
+<script type="text/javascript">
+    var xhReq = new XMLHttpRequest();
+    var imgMeme = document.getElementById("meme");
+    document.getElementById("next_meme").addEventListener("click",requestMeme);
+    requestMeme();
+
+    function requestMeme() {
+        xhReq.open("POST","backend.php");
+        var request = {
+            type: "Memes"
+        };
+        xhReq.onload = setMeme;
+        xhReq.send(JSON.stringify(request));
+    }
+    function setMeme() {
+        if(xhReq.status === 200){
+            imgMeme.setAttribute("src",xhReq.responseText);
+        }
+    }
+</script>
+</body>
+</html>

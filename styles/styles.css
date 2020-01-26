@@ -50,6 +50,10 @@ fieldset button {
     height: 3em;
     width: 25em;
 }
+fieldset img {
+    height: auto;
+    width: 500px;
+}
 .rule_preview textarea {
     margin: 10px 0;
     width: 400px;

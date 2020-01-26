@@ -67,7 +67,10 @@ switch ($data["type"])
             break;
         }
     case "Memes":
-        break;
+        {
+            SendRandomMeme();
+            break;
+        }
     default:
         {
             header('HTTP/1.1 400 Bad Request');
@@ -91,6 +94,20 @@ function SendConfig($name, $system)
         header('Content-Disposition: attachment; filename="'.$filename.'"');
         echo $file;
     }
+    else
+    {
+        header('HTTP/1.1 404 Missing File');
+        header('Content-Type: application/json; charset=UTF-8');
+        die(json_encode(array('message' => 'ERROR', 'code' => 404)));
+    }
+}
+function SendRandomMeme()
+{
+    $dir = 'img/';
+    $array = scandir($dir);
+    $file_path = $dir.$array[rand(2,count($array)-1)];
+    if(file_exists($file_path))
+        echo $file_path;
     else
     {
         header('HTTP/1.1 404 Missing File');
